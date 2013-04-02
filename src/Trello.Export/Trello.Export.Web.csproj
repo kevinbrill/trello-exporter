@@ -81,6 +81,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <None Include="content\scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="content\css\chosen-sprite%402x.png" />
+    <Content Include="content\css\chosen-sprite.png" />
+    <Content Include="content\css\chosen.css" />
+    <Content Include="content\css\kube.css" />
+    <Content Include="content\css\kube.min.css" />
+    <Content Include="content\css\master.css" />
+    <Content Include="content\scripts\chosen.jquery.min.js" />
+    <Content Include="content\scripts\jquery-1.9.1.js" />
+    <Content Include="content\scripts\jquery-1.9.1.min.js" />
+    <Content Include="content\scripts\kube.buttons.js" />
+    <Content Include="content\scripts\kube.tabs.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +102,7 @@
   <ItemGroup>
     <Content Include="packages.config" />
     <Content Include="views\default.html" />
+    <Content Include="content\scripts\jquery-1.9.1.min.map" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

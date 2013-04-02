@@ -1,14 +1,47 @@
 ﻿<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Trello export</title>
-</head>
+	<head>
+		<title>Trello export</title>
+		<script src="/content/scripts/jquery-1.9.1.min.js"></script>
+	    <script src="/content/scripts/chosen.jquery.min.js"></script>
+	    <link href="/content/css/chosen.css" type="text/css" rel="stylesheet"/>
+	    <link href="/content/css/master.css" type="text/css" rel="stylesheet"/>
+		<link href="/content/css/kube.css" type="text/css" rel="stylesheet"/>
+	</head>
     <body>
-        <label for="boards">Boards</label>
-        <select id="boards" name="boards">
-			@Each.Boards
-			<option value="@Current.Id">@Current.Name</option>
-			@EndEach
-        </select>
+		<script>
+		    $(document).ready(function() {
+		        $("#boards").chosen();
+		        
+		        $("#lists").chosen();
+		    });
+		</script> 
+        <div class="row">
+            <div class="fivesixth centered">
+                <form class="forms">
+                    <fieldset>
+                        <legend>Select your export options</legend>
+                        <ul>
+                            <li>
+                                <label for="boards">Boards</label>
+                                <select id="boards" name="boards">
+                                    @Each.Boards
+                                    <option value="@Current.Id">@Current.Name</option>
+                                    @EndEach
+                                </select>
+                            </li>
+                            <li>
+                                <label for="lists">Lists</label>
+                                <select id="lists" name="lists" multiple="multiple" data-placeholder="Choose your lists" style="width:350px;" >
+                                    @Each.Lists
+                                    <option value="@Current.Id">@Current.Name</option>
+                                    @EndEach
+                                </select>                
+                            </li>
+                        </ul>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
     </body>
 </html>

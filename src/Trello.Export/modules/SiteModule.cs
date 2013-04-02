@@ -51,7 +51,14 @@ namespace Trello.Export.Web.modules
 
             var boards = trello.Boards.ForOrganization(organization);
 
-            return boards.OrderBy(x => x.Name).Select(x => new {x.Id, x.Name}).ToList<dynamic>();
+            return boards.OrderBy(x => x.Name)
+                         .Select(x => new
+                             {
+                                 x.Id,
+                                 x.Name,
+                                 Selected = x.Id == "511cdb9c5984dad16a0021c9"
+                             })
+                         .ToList<dynamic>();
         }
         
         private List<dynamic> GetLists(string boardId)
