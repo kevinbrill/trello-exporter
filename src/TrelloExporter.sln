@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trello.Export.Web", "Trello.Export\Trello.Export.Web.csproj", "{7E609B7C-911B-4EA1-9A38-B67F9BD83709}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{8E62AEBE-63A4-422E-B370-1719E35A8688}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\NuGet.Config = .nuget\NuGet.Config
+		.nuget\NuGet.exe = .nuget\NuGet.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7E609B7C-911B-4EA1-9A38-B67F9BD83709}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7E609B7C-911B-4EA1-9A38-B67F9BD83709}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7E609B7C-911B-4EA1-9A38-B67F9BD83709}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7E609B7C-911B-4EA1-9A38-B67F9BD83709}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
