@@ -19,7 +19,12 @@ namespace Trello.Export.Web.modules
                 {
                     var boards = GetBoards();
 
-                    return View["views/default", boards];
+                    dynamic model = new
+                        {
+                            Boards = boards
+                        };
+
+                    return View["views/default", model];
                 };
 
             Get["/api/boards"] = o => GetBoards();
@@ -47,15 +52,7 @@ namespace Trello.Export.Web.modules
 
             var boards = trello.Boards.ForOrganization(organization);
 
-            return new List<dynamic>
-                {
-                    from b in boards
-                    select new
-                        {
-                            b.Id,
-                            b.Name,
-                        }
-                };
+            return boards.Select(x => new {x.Id, x.Name}).ToList<dynamic>();
         }
     }
 }
