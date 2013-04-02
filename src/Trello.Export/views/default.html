@@ -4,8 +4,11 @@
     <title>Trello export</title>
 </head>
     <body>
-        @Each.Boards
-        Hello @Current.Name!
-        @EndEach
+        <label for="boards">Boards</label>
+        <select id="boards" name="boards">
+			@Each.Boards
+			<option value="@Current.Id">@Current.Name</option>
+			@EndEach
+        </select>
     </body>
 </html>
