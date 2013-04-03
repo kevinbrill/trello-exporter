@@ -14,7 +14,29 @@
 		        $("#boards").chosen();
 		        
 		        $("#lists").chosen();
+		        
+		        $("#boards").on('change', function( source, item ) {
+		        	rebuildLists( item.selected );
+		        });
 		    });
+		    
+		    var rebuildLists = function( boardId ) {
+		    
+		    	$.ajax({ 
+		    		type: 'GET',
+		    		url: '/api/boards/' + boardId + '/lists',
+		    		dataType: 'json',
+		    		success: function( results ) {
+		    			var optionText = '';
+		    			$.each( results, function( index, item ) { 
+		    				optionText += "<option value='" + item.Id + "'>" + item.Name + "</option>";
+		    			} );
+		    			
+		    			$("#lists").html( optionText );
+		    			$("#lists").trigger("liszt:updated");
+		    		}
+		    	});
+		    };
 		</script> 
         <div class="row">
             <div class="fivesixth centered">
