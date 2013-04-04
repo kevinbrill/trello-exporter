@@ -6,13 +6,23 @@
 	    <script src="/content/scripts/chosen.jquery.min.js"></script>
 	    <link href="/content/css/chosen.css" type="text/css" rel="stylesheet"/>
 	    <link href="/content/css/master.css" type="text/css" rel="stylesheet"/>
-		<link href="/content/css/kube.css" type="text/css" rel="stylesheet"/>
+	    <link href="/content/css/kube.css" type="text/css" rel="stylesheet"/>
+
+        <!-- DataTables -->
+        <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+
+        <!-- DataTables CSS -->
+	    <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
+ 
 	</head>
     <body>
         <script>
-            var selectedLists = [];
+            var lists = [];
             
-            $(document).ready(function() {
+            $(document).ready(function () {
+                
+                //$("#cards").dataTable();
+                
                 $("#boards").chosen();
 		        
                 $("#lists").chosen();
@@ -21,7 +31,7 @@
                     rebuildLists( item.selected );
                 });
 
-                $("#lists").on('change', function (source, items) {
+                $("#lists").on('change', function () {
 
                     var boardId = $('#boards').val();
                     var listIds = $('#lists').val() ? $('#lists').val() : [];
@@ -30,15 +40,18 @@
                 });
             });
 		    
-            var rebuildLists = function( boardId ) {
-		    
+            var rebuildLists = function( boardId ) {		    
                 $.ajax({ 
                     type: 'GET',
                     url: '/api/boards/' + boardId + '/lists',
                     dataType: 'json',
-                    success: function( results ) {
+                    success: function (results) {
+
+                        lists = [];
+                        
                         var optionText = '';
-                        $.each( results, function( index, item ) { 
+                        $.each(results, function (index, item) {                            
+                            lists[item.Id] = item;
                             optionText += "<option value='" + item.Id + "'>" + item.Name + "</option>";
                         } );
 
@@ -48,13 +61,32 @@
                 });
             };
 
-            var rebuildCards = function(boardId, listIds) {
+            var rebuildCards = function (boardId, listIds) {
+                
+                if (!listIds || !Array.isArray(listIds) || listIds.length === 0) {
+                    $("#cardsBody").html('');
+
+                    //$('#cards').dataTable().fnDraw();
+
+                    return;
+                }
+                
                 $.ajax({
                     type: 'GET',
                     url: '/api/boards/' + boardId + '/lists/' + listIds.join() + '/cards',
                     dataType: 'json',
-                    success: function(results) {
-                        debugger;
+                    success: function (results) {
+                        var innerHtml = '';
+
+                        $.each(results, function (index, result) {
+                            var list = lists[result.IdList];
+                            
+                            innerHtml += '<tr data-id="' + result.Id + '" title="' + result.Desc + '"><td></td><td>' + result.Name + '</td><td>' + list.Name + '</td></tr>';
+                        });
+
+                        $("#cardsBody").html(innerHtml);
+                        
+                        //$('#cards').dataTable().fnDraw();
                     }
                 });
             };
@@ -68,7 +100,7 @@
                         <ul>
                             <li>
                                 <label for="boards">Boards</label>
-                                <select id="boards" name="boards">
+                                <select id="boards" name="boards" style="width:200px;">
                                     @Each.Boards
                                     <option value="@Current.Id">@Current.Name</option>
                                     @EndEach
@@ -76,7 +108,7 @@
                             </li>
                             <li>
                                 <label for="lists">Lists</label>
-                                <select id="lists" name="lists" multiple="multiple" data-placeholder="Choose your lists" style="width:350px;" >
+                                <select id="lists" name="lists" multiple="multiple" data-placeholder="Choose your lists"  style="width:350px;" >
                                     @Each.Lists
                                     <option value="@Current.Id">@Current.Name</option>
                                     @EndEach
@@ -85,7 +117,16 @@
                             <li>
                                 <label for="cards">Cards</label>
                                 <div id="cardContainer">
-                                    <table id="cards"></table>
+                                    <table id="cards" class="width-100 bordered hovered striped">
+                                        <thead class="thead-black">
+                                            <tr>
+                                                <td style="width: 3%"><input type="checkbox" id="cardsHeaderCheck"/></td>
+                                                <td>Name</td>
+                                                <td>List</td>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="cardsBody"></tbody>
+                                    </table>
                                 </div>
                             </li>
                         </ul>
