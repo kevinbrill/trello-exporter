@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Nancy;
+using Nancy.Responses;
 using TrelloNet;
 
 namespace Trello.Export.Web.modules
@@ -55,6 +56,8 @@ namespace Trello.Export.Web.modules
                     
                     return results;
                 };
+
+            Get[@"/(.*)"] = o => Response.AsRedirect("/", RedirectResponse.RedirectType.Permanent);
         }
 
         private List<dynamic> GetBoards()
