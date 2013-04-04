@@ -6,22 +6,13 @@
 	    <script src="/content/scripts/chosen.jquery.min.js"></script>
 	    <link href="/content/css/chosen.css" type="text/css" rel="stylesheet"/>
 	    <link href="/content/css/master.css" type="text/css" rel="stylesheet"/>
-	    <link href="/content/css/kube.css" type="text/css" rel="stylesheet"/>
-
-        <!-- DataTables -->
-        <script type="text/javascript" charset="utf8" src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
-
-        <!-- DataTables CSS -->
-	    <link rel="stylesheet" type="text/css" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
- 
+	    <link href="/content/css/kube.css" type="text/css" rel="stylesheet"/> 
 	</head>
     <body>
         <script>
             var lists = [];
             
             $(document).ready(function () {
-                
-                //$("#cards").dataTable();
                 
                 $("#boards").chosen();
 		        
@@ -37,6 +28,12 @@
                     var listIds = $('#lists').val() ? $('#lists').val() : [];
 
                     rebuildCards(boardId, listIds);
+                });
+
+                $('#cardsHeaderCheck').on('click', function() {
+                    var selected = $('#cardsHeaderCheck').prop('checked');
+
+                    $('.tableCheck').prop('checked', selected);
                 });
             });
 		    
@@ -66,8 +63,6 @@
                 if (!listIds || !Array.isArray(listIds) || listIds.length === 0) {
                     $("#cardsBody").html('');
 
-                    //$('#cards').dataTable().fnDraw();
-
                     return;
                 }
                 
@@ -80,13 +75,15 @@
 
                         $.each(results, function (index, result) {
                             var list = lists[result.IdList];
-                            
-                            innerHtml += '<tr data-id="' + result.Id + '" title="' + result.Desc + '"><td></td><td>' + result.Name + '</td><td>' + list.Name + '</td></tr>';
+
+                            innerHtml += '<tr data-id="' + result.Id + '" title="' + result.Desc + '">';
+                            innerHtml += '<td><input type="checkbox" class="tableCheck"/></td>';
+                            innerHtml += '<td>' + result.Name + '</td>';
+                            innerHtml += '<td>' + list.Name + '</td>';
+                            innerHtml += '</tr>';
                         });
 
                         $("#cardsBody").html(innerHtml);
-                        
-                        //$('#cards').dataTable().fnDraw();
                     }
                 });
             };
