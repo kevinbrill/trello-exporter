@@ -9,35 +9,57 @@
 		<link href="/content/css/kube.css" type="text/css" rel="stylesheet"/>
 	</head>
     <body>
-		<script>
-		    $(document).ready(function() {
-		        $("#boards").chosen();
+        <script>
+            var selectedLists = [];
+            
+            $(document).ready(function() {
+                $("#boards").chosen();
 		        
-		        $("#lists").chosen();
+                $("#lists").chosen();
 		        
-		        $("#boards").on('change', function( source, item ) {
-		        	rebuildLists( item.selected );
-		        });
-		    });
+                $("#boards").on('change', function( source, item ) {
+                    rebuildLists( item.selected );
+                });
+
+                $("#lists").on('change', function (source, items) {
+                    if (items.selected) {
+                        selectedLists.push(items.selected);
+                    } else if (items.deselected) {
+                        var index = selectedLists.indexOf(items.deselected);
+                        
+                        if (index >= 0) {
+                            selectedLists.splice(index, 1);
+                        }
+                    }
+
+                    rebuildCards(selectedLists);
+                });
+            });
 		    
-		    var rebuildLists = function( boardId ) {
+            var rebuildLists = function( boardId ) {
 		    
-		    	$.ajax({ 
-		    		type: 'GET',
-		    		url: '/api/boards/' + boardId + '/lists',
-		    		dataType: 'json',
-		    		success: function( results ) {
-		    			var optionText = '';
-		    			$.each( results, function( index, item ) { 
-		    				optionText += "<option value='" + item.Id + "'>" + item.Name + "</option>";
-		    			} );
-		    			
-		    			$("#lists").html( optionText );
-		    			$("#lists").trigger("liszt:updated");
-		    		}
-		    	});
-		    };
-		</script> 
+                $.ajax({ 
+                    type: 'GET',
+                    url: '/api/boards/' + boardId + '/lists',
+                    dataType: 'json',
+                    success: function( results ) {
+                        var optionText = '';
+                        $.each( results, function( index, item ) { 
+                            optionText += "<option value='" + item.Id + "'>" + item.Name + "</option>";
+                        } );
+
+                        selectedLists = [];
+                        $("#lists").html( optionText );
+                        $("#lists").trigger("liszt:updated");
+                    }
+                });
+            };
+
+            var rebuildCards = function(listIds) {
+
+            };
+
+        </script> 
         <div class="row">
             <div class="fivesixth centered">
                 <form class="forms">
@@ -59,6 +81,12 @@
                                     <option value="@Current.Id">@Current.Name</option>
                                     @EndEach
                                 </select>                
+                            </li>
+                            <li>
+                                <label for="cards">Cards</label>
+                                <div id="cardContainer">
+                                    <table id="cards"></table>
+                                </div>
                             </li>
                         </ul>
                     </fieldset>
