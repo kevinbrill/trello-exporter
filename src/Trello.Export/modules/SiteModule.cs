@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using Nancy;
@@ -37,11 +38,22 @@ namespace Trello.Export.Web.modules
 
             Get["/api/boards/{boardId}/lists/{listId}/cards"] = o =>
                 {
-                    var list = trello.Lists.WithId(o.listId);
+                    var results = new List<dynamic>();
 
-                    var cards = trello.Cards.ForList(list);
+                    var listIdsAsString = (string) o.listId;
+
+                    var listIds = listIdsAsString.Split(',');
+
+                    foreach (var listId in listIds)
+                    {
+                        var list = trello.Lists.WithId(listId);
+
+                        var cards = trello.Cards.ForList(list);
+
+                        results.AddRange(cards);
+                    }
                     
-                    return cards;
+                    return results;
                 };
         }
 

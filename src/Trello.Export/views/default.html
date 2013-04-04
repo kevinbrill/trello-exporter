@@ -22,17 +22,11 @@
                 });
 
                 $("#lists").on('change', function (source, items) {
-                    if (items.selected) {
-                        selectedLists.push(items.selected);
-                    } else if (items.deselected) {
-                        var index = selectedLists.indexOf(items.deselected);
-                        
-                        if (index >= 0) {
-                            selectedLists.splice(index, 1);
-                        }
-                    }
 
-                    rebuildCards(selectedLists);
+                    var boardId = $('#boards').val();
+                    var listIds = $('#lists').val() ? $('#lists').val() : [];
+
+                    rebuildCards(boardId, listIds);
                 });
             });
 		    
@@ -48,15 +42,21 @@
                             optionText += "<option value='" + item.Id + "'>" + item.Name + "</option>";
                         } );
 
-                        selectedLists = [];
                         $("#lists").html( optionText );
                         $("#lists").trigger("liszt:updated");
                     }
                 });
             };
 
-            var rebuildCards = function(listIds) {
-
+            var rebuildCards = function(boardId, listIds) {
+                $.ajax({
+                    type: 'GET',
+                    url: '/api/boards/' + boardId + '/lists/' + listIds.join() + '/cards',
+                    dataType: 'json',
+                    success: function(results) {
+                        debugger;
+                    }
+                });
             };
 
         </script> 
