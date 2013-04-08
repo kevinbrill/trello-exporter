@@ -44,9 +44,21 @@ namespace Trello.Export.Web.modules
                         var body = stringReader.ReadToEnd();
 
                         var queryString = HttpUtility.ParseQueryString(body);
-                        var selectedCards = queryString["selectedCards"].Split(',');
+                        var selectedCardIds = queryString["selectedCards"].Split(',');
 
-                        return Response.AsText(queryString["selectedCards"]);
+                        var cards = selectedCardIds.AsParallel()
+                                                   .Select(id => trello.Cards.WithId(id))
+                                                   .ToList();
+
+                        var exporter = new ExcelExporter();
+                        var export = exporter.Export(cards);
+
+                        var response = Response.FromStream(export.Stream,
+                                                   "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+                        response.WithHeader("Content-Length", export.Stream.Length.ToString());
+                        
+                        return response;
                     }
                 };
 
