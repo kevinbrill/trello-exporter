@@ -34,6 +34,12 @@
                     var selected = $('#cardsHeaderCheck').prop('checked');
 
                     $('.tableCheck').prop('checked', selected);
+
+                    setSelectedCardIds();
+                });
+
+                $("#export").on('click', function() {
+
                 });
             });
 		    
@@ -76,22 +82,33 @@
                         $.each(results, function (index, result) {
                             var list = lists[result.IdList];
 
-                            innerHtml += '<tr data-id="' + result.Id + '" title="' + result.Desc + '">';
-                            innerHtml += '<td><input type="checkbox" class="tableCheck"/></td>';
+                            innerHtml += '<tr title="' + result.Desc + '">';
+                            innerHtml += '<td><input type="checkbox" class="tableCheck" data-id="' + result.Id + '" /></td>';
                             innerHtml += '<td>' + result.Name + '</td>';
                             innerHtml += '<td>' + list.Name + '</td>';
                             innerHtml += '</tr>';
                         });
 
                         $("#cardsBody").html(innerHtml);
+                        $(".tableCheck").on('click', setSelectedCardIds);
                     }
                 });
             };
 
+            var setSelectedCardIds = function() {
+                var ids = [];
+                
+                $(".tableCheck:checked").each(function (index, checkbox) {
+                    ids.push($(checkbox).attr('data-id'));
+                });
+
+                $('#selectedCards').val(ids.join(","));
+            };
+            
         </script> 
         <div class="row">
             <div class="fivesixth centered">
-                <form class="forms">
+                <form id="form" class="forms" action="/export" method="post">
                     <fieldset>
                         <legend>Select your export options</legend>
                         <ul>
@@ -127,7 +144,10 @@
                                 </div>
                             </li>
                             <li>
-                                <input type="button" value="Export" class="btn"/>
+                                <input type="hidden" id="selectedCards" name="selectedCards"/>
+                            </li>
+                            <li>
+                                <input type="submit" id="export" value="Export" class="btn"/>
                             </li>
                         </ul>
                     </fieldset>

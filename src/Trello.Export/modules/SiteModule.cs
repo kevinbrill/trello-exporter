@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Text;
 using Nancy;
+using Nancy.Helpers;
+using Nancy.ModelBinding;
 using Nancy.Responses;
 using TrelloNet;
 
@@ -31,6 +35,19 @@ namespace Trello.Export.Web.modules
                         };
 
                     return View["views/default", model];
+                };
+
+            Post["/export"] = o =>
+                {
+                    using (var stringReader = new StreamReader(Request.Body))
+                    {
+                        var body = stringReader.ReadToEnd();
+
+                        var queryString = HttpUtility.ParseQueryString(body);
+                        var selectedCards = queryString["selectedCards"].Split(',');
+
+                        return Response.AsText(queryString["selectedCards"]);
+                    }
                 };
 
             Get["/api/boards"] = o => GetBoards();
