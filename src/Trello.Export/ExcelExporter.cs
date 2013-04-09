@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web;
 using OfficeOpenXml;
 using TrelloNet;
@@ -38,13 +39,42 @@ namespace Trello.Export.Web
                 worksheet.Cells[i, NumberColumn].Value = card.IdShort;
                 worksheet.Cells[i, TitleColumn].Value = card.Name;
                 worksheet.Cells[i, DescriptionColumn].Value = card.Desc;
+                worksheet.Cells[i, MembersColumn].Value = GetMembers(card);
+                worksheet.Cells[i, ToDoColumn].Value = GetToDos(card);
+                worksheet.Cells[i, DueDateColumn].Value = card.Due != null ? card.Due.Value.ToShortDateString() : string.Empty;
             }
-
+            
             excelPackage.Save();
 
             excelPackage.Stream.Position = 0;
 
             return excelPackage;
+        }
+
+        private string GetMembers(Card card)
+        {
+            var members = card.Members ?? new List<Member>();
+
+            return string.Join(",", members.Select(x => x.FullName));
+        }
+
+        private string GetToDos(Card card)
+        {
+            var incompleteToDos = new StringBuilder();
+
+            var checklist = card.Checklists.FirstOrDefault();
+
+            if (checklist == null)
+            {
+                return string.Empty;
+            }
+
+            foreach (var checkItem in checklist.CheckItems)
+            {
+                incompleteToDos.AppendFormat("{0}{1}", checkItem.Name, Environment.NewLine);
+            }
+
+            return incompleteToDos.ToString();
         }
     }
 }
