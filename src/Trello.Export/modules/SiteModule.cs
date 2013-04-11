@@ -4,6 +4,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
+using MoreLinq;
 using Nancy;
 using Nancy.Helpers;
 using Nancy.ModelBinding;
@@ -26,7 +27,7 @@ namespace Trello.Export.Web.modules
                 {
                     var boards = GetBoards();
 
-                    var primaryBoard = boards.FirstOrDefault(x => x.Id == "511cdb9c5984dad16a0021c9");
+                    var primaryBoard = boards.First();
 
                     dynamic model = new
                         {
@@ -46,12 +47,20 @@ namespace Trello.Export.Web.modules
                         var queryString = HttpUtility.ParseQueryString(body);
                         var selectedCardIds = queryString["selectedCards"].Split(',');
 
+                        // Pull all the cards for the provided Ids
                         var cards = selectedCardIds.AsParallel()
                                                    .Select(id => trello.Cards.WithId(id))
                                                    .ToList();
 
+                        // Given the cards, fetch the associated lists and drop them
+                        //  into a dictionary
+                        var lists = cards.DistinctBy(x => x.IdList)
+                                         .AsParallel()
+                                         .Select(x => trello.Lists.WithId(x.IdList))
+                                         .ToDictionary(x => x.Id);
+
                         var exporter = new ExcelExporter();
-                        var export = exporter.Export(cards);
+                        var export = exporter.Export(cards,lists);
 
                         var response = Response.FromStream(export.Stream,
                                                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");

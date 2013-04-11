@@ -12,43 +12,63 @@ namespace Trello.Export.Web
     {
         //Board	Label	Status	Card Number	Card Title	Card Description	Activity	Members	Checklist	Due Date
 
-        private const int BoardColumn = 1;
-        private const int LabelColumn = 2;
-        private const int ListColumn = 3;
-        private const int NumberColumn = 4;
-        private const int TitleColumn = 5;
-        private const int DescriptionColumn = 6;
-        private const int CommentsColumn = 7;
-        private const int MembersColumn = 8;
-        private const int ToDoColumn = 9;
-        private const int DueDateColumn = 10;
+        private enum ColumnNumbers
+        {
+            LabelColumn = 1,
+            ListColumn,
+            NumberColumn,
+            TitleColumn,
+            DescriptionColumn,
+            CommentsColumn,
+            MembersColumn,
+            ToDoColumn,
+            DueDateColumn
+        }
 
-        public ExcelPackage Export(List<Card> cards)
+        public ExcelPackage Export(List<Card> cards, Dictionary<string, List> lists)
         {
             var excelPackage = new ExcelPackage();
 
             var worksheet = excelPackage.Workbook.Worksheets.Add("Trello");
 
-            for( int i = 1; i <= cards.Count; i++ )
-            {
-                var card = cards[i - 1];
+            BuildHeaderRow(worksheet);
 
-                worksheet.Cells[i, BoardColumn].Value = card.IdBoard;
-                worksheet.Cells[i, LabelColumn].Value = string.Join(",", card.Labels.Select(x => x.Name).ToArray());
-                worksheet.Cells[i, ListColumn].Value = card.IdList;
-                worksheet.Cells[i, NumberColumn].Value = card.IdShort;
-                worksheet.Cells[i, TitleColumn].Value = card.Name;
-                worksheet.Cells[i, DescriptionColumn].Value = card.Desc;
-                worksheet.Cells[i, MembersColumn].Value = GetMembers(card);
-                worksheet.Cells[i, ToDoColumn].Value = GetToDos(card);
-                worksheet.Cells[i, DueDateColumn].Value = card.Due != null ? card.Due.Value.ToShortDateString() : string.Empty;
-            }
-            
+            BuildCardRows(worksheet, cards, lists);
+
             excelPackage.Save();
 
             excelPackage.Stream.Position = 0;
 
             return excelPackage;
+        }
+
+        private void BuildCardRows(ExcelWorksheet worksheet, List<Card> cards, Dictionary<string, List> lists)
+        {
+            for (int i = 2; i <= cards.Count; i++)
+            {
+                var card = cards[i - 1];
+
+                worksheet.Cells[i, (int)ColumnNumbers.LabelColumn].Value = GetLabels(card);
+                worksheet.Cells[i, (int)ColumnNumbers.ListColumn].Value = lists[card.IdList].Name;
+                worksheet.Cells[i, (int)ColumnNumbers.NumberColumn].Value = card.IdShort;
+                worksheet.Cells[i, (int)ColumnNumbers.TitleColumn].Value = card.Name;
+                worksheet.Cells[i, (int)ColumnNumbers.DescriptionColumn].Value = card.Desc;
+                worksheet.Cells[i, (int)ColumnNumbers.MembersColumn].Value = GetMembers(card);
+                worksheet.Cells[i, (int)ColumnNumbers.ToDoColumn].Value = GetToDos(card);
+                worksheet.Cells[i, (int)ColumnNumbers.DueDateColumn].Value = card.Due != null ? card.Due.Value.ToShortDateString() : string.Empty;
+            }                       
+        }
+
+        private void BuildHeaderRow(ExcelWorksheet worksheet)
+        {
+            
+        }
+
+        private string GetLabels(Card card)
+        {
+            var labels = card.Labels ?? new List<Card.Label>();
+
+            return string.Join(",", labels.Select(x => x.Name));
         }
 
         private string GetMembers(Card card)
