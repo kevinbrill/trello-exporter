@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Web;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using TrelloNet;
 
 namespace Trello.Export.Web
@@ -61,7 +62,20 @@ namespace Trello.Export.Web
 
         private void BuildHeaderRow(ExcelWorksheet worksheet)
         {
-            
+            worksheet.Cells[1, (int) ColumnNumbers.LabelColumn].Value = "Labels";
+            worksheet.Cells[1, (int)ColumnNumbers.ListColumn].Value = "List";
+            worksheet.Cells[1, (int)ColumnNumbers.NumberColumn].Value = "Card Number";
+            worksheet.Cells[1, (int)ColumnNumbers.TitleColumn].Value = "Title";
+            worksheet.Cells[1, (int)ColumnNumbers.DescriptionColumn].Value = "Description";
+            worksheet.Cells[1, (int)ColumnNumbers.MembersColumn].Value = "Members";
+            worksheet.Cells[1, (int)ColumnNumbers.ToDoColumn].Value = "To Dos";
+            worksheet.Cells[1, (int) ColumnNumbers.DueDateColumn].Value = "Due Date";
+
+            var style = worksheet.Cells[1, 1, 1, (int) ColumnNumbers.DueDateColumn].Style;
+            style.Fill.PatternType = ExcelFillStyle.Solid;
+            style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Black);
+            style.Font.Bold = true;
+            style.Font.Color.SetColor(System.Drawing.Color.White);
         }
 
         private string GetLabels(Card card)
