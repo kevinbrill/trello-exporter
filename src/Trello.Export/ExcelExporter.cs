@@ -15,15 +15,16 @@ namespace Trello.Export.Web
 
         private enum ColumnNumbers
         {
-            LabelColumn = 1,
-            ListColumn,
+            ListColumn = 1,
+            LabelColumn,
             NumberColumn,
             TitleColumn,
             DescriptionColumn,
             CommentsColumn,
             MembersColumn,
             ToDoColumn,
-            DueDateColumn
+            DueDateColumn,
+            LastColumn
         }
 
         public ExcelPackage Export(List<Card> cards, Dictionary<string, List> lists)
@@ -36,11 +37,26 @@ namespace Trello.Export.Web
 
             BuildCardRows(worksheet, cards, lists);
 
+            SizeAndFormatCells(worksheet);
+
             excelPackage.Save();
 
             excelPackage.Stream.Position = 0;
 
             return excelPackage;
+        }
+
+        private void SizeAndFormatCells(ExcelWorksheet worksheet)
+        {
+            worksheet.Column((int)ColumnNumbers.ListColumn).AutoFit();
+            worksheet.Column((int)ColumnNumbers.TitleColumn).Width = 60;
+            worksheet.Column((int)ColumnNumbers.DescriptionColumn).Width = 125;
+
+            var contentRange = worksheet.Cells[2, 1, 100, (int)ColumnNumbers.LastColumn];
+            
+            contentRange.Style.VerticalAlignment = ExcelVerticalAlignment.Top;
+            contentRange.Style.Border.BorderAround(ExcelBorderStyle.Thick, System.Drawing.Color.Black);
+            contentRange.Style.WrapText = true;
         }
 
         private void BuildCardRows(ExcelWorksheet worksheet, List<Card> cards, Dictionary<string, List> lists)
@@ -49,29 +65,31 @@ namespace Trello.Export.Web
             {
                 var card = cards[i - 1];
 
-                worksheet.Cells[i, (int)ColumnNumbers.LabelColumn].Value = GetLabels(card);
-                worksheet.Cells[i, (int)ColumnNumbers.ListColumn].Value = lists[card.IdList].Name;
-                worksheet.Cells[i, (int)ColumnNumbers.NumberColumn].Value = card.IdShort;
-                worksheet.Cells[i, (int)ColumnNumbers.TitleColumn].Value = card.Name;
-                worksheet.Cells[i, (int)ColumnNumbers.DescriptionColumn].Value = card.Desc;
-                worksheet.Cells[i, (int)ColumnNumbers.MembersColumn].Value = GetMembers(card);
-                worksheet.Cells[i, (int)ColumnNumbers.ToDoColumn].Value = GetToDos(card);
-                worksheet.Cells[i, (int)ColumnNumbers.DueDateColumn].Value = card.Due != null ? card.Due.Value.ToShortDateString() : string.Empty;
-            }                       
+                worksheet.Cells[i, (int) ColumnNumbers.LabelColumn].Value = GetLabels(card);
+                worksheet.Cells[i, (int) ColumnNumbers.ListColumn].Value = lists[card.IdList].Name;
+                worksheet.Cells[i, (int) ColumnNumbers.NumberColumn].Value = card.IdShort;
+                worksheet.Cells[i, (int) ColumnNumbers.TitleColumn].Value = card.Name;
+                worksheet.Cells[i, (int) ColumnNumbers.DescriptionColumn].Value = card.Desc;
+                worksheet.Cells[i, (int) ColumnNumbers.MembersColumn].Value = GetMembers(card);
+                worksheet.Cells[i, (int) ColumnNumbers.ToDoColumn].Value = GetToDos(card);
+                worksheet.Cells[i, (int) ColumnNumbers.DueDateColumn].Value = card.Due != null
+                                                                                  ? card.Due.Value.ToShortDateString()
+                                                                                  : string.Empty;
+            }
         }
 
         private void BuildHeaderRow(ExcelWorksheet worksheet)
         {
             worksheet.Cells[1, (int) ColumnNumbers.LabelColumn].Value = "Labels";
-            worksheet.Cells[1, (int)ColumnNumbers.ListColumn].Value = "List";
-            worksheet.Cells[1, (int)ColumnNumbers.NumberColumn].Value = "Card Number";
-            worksheet.Cells[1, (int)ColumnNumbers.TitleColumn].Value = "Title";
-            worksheet.Cells[1, (int)ColumnNumbers.DescriptionColumn].Value = "Description";
-            worksheet.Cells[1, (int)ColumnNumbers.MembersColumn].Value = "Members";
-            worksheet.Cells[1, (int)ColumnNumbers.ToDoColumn].Value = "To Dos";
+            worksheet.Cells[1, (int) ColumnNumbers.ListColumn].Value = "List";
+            worksheet.Cells[1, (int) ColumnNumbers.NumberColumn].Value = "Card Number";
+            worksheet.Cells[1, (int) ColumnNumbers.TitleColumn].Value = "Title";
+            worksheet.Cells[1, (int) ColumnNumbers.DescriptionColumn].Value = "Description";
+            worksheet.Cells[1, (int) ColumnNumbers.MembersColumn].Value = "Members";
+            worksheet.Cells[1, (int) ColumnNumbers.ToDoColumn].Value = "To Dos";
             worksheet.Cells[1, (int) ColumnNumbers.DueDateColumn].Value = "Due Date";
 
-            var style = worksheet.Cells[1, 1, 1, (int) ColumnNumbers.DueDateColumn].Style;
+            var style = worksheet.Cells[1, 1, 1, (int)ColumnNumbers.LastColumn].Style;
             style.Fill.PatternType = ExcelFillStyle.Solid;
             style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Black);
             style.Font.Bold = true;
