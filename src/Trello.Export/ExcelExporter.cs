@@ -37,7 +37,7 @@ namespace Trello.Export.Web
 
             BuildCardRows(worksheet, cards, lists);
 
-            SizeAndFormatCells(worksheet);
+            SizeAndFormatCells(worksheet, cards.Count);
 
             excelPackage.Save();
 
@@ -46,17 +46,26 @@ namespace Trello.Export.Web
             return excelPackage;
         }
 
-        private void SizeAndFormatCells(ExcelWorksheet worksheet)
+        private void SizeAndFormatCells(ExcelWorksheet worksheet, int totalRows)
         {
-            worksheet.Column((int)ColumnNumbers.ListColumn).AutoFit();
+            for (int i = 1; i < (int)ColumnNumbers.LastColumn; i++)
+            {
+                worksheet.Column(i).AutoFit();
+            }
+
+            worksheet.Column((int)ColumnNumbers.ToDoColumn).Width = 60;
             worksheet.Column((int)ColumnNumbers.TitleColumn).Width = 60;
             worksheet.Column((int)ColumnNumbers.DescriptionColumn).Width = 125;
 
-            var contentRange = worksheet.Cells[2, 1, 100, (int)ColumnNumbers.LastColumn];
+            var contentRange = worksheet.Cells[2, 1, totalRows, (int)ColumnNumbers.LastColumn - 1];
             
             contentRange.Style.VerticalAlignment = ExcelVerticalAlignment.Top;
-            contentRange.Style.Border.BorderAround(ExcelBorderStyle.Thick, System.Drawing.Color.Black);
             contentRange.Style.WrapText = true;
+
+            foreach (var range in contentRange)
+            {
+                range.Style.Border.BorderAround(ExcelBorderStyle.Thin, System.Drawing.Color.Black);
+            }
         }
 
         private void BuildCardRows(ExcelWorksheet worksheet, List<Card> cards, Dictionary<string, List> lists)
@@ -89,7 +98,7 @@ namespace Trello.Export.Web
             worksheet.Cells[1, (int) ColumnNumbers.ToDoColumn].Value = "To Dos";
             worksheet.Cells[1, (int) ColumnNumbers.DueDateColumn].Value = "Due Date";
 
-            var style = worksheet.Cells[1, 1, 1, (int)ColumnNumbers.LastColumn].Style;
+            var style = worksheet.Cells[1, 1, 1, (int)ColumnNumbers.LastColumn - 1].Style;
             style.Fill.PatternType = ExcelFillStyle.Solid;
             style.Fill.BackgroundColor.SetColor(System.Drawing.Color.Black);
             style.Font.Bold = true;
